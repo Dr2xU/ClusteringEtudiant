@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session
+<<<<<<< HEAD
 import sys
 import os
 import os
@@ -13,6 +14,18 @@ from users.user import User
 main = Blueprint('main', __name__)
 data = load_all_data()
 
+=======
+from .db_access import get_user_by_email_password
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'backend_prog')))
+
+from users.user import user
+
+main = Blueprint('main', __name__)
+user1 = user(1234, 'truc@mail.com', 'password', 'student')
+ 
+>>>>>>> 111dc9213569f8c24af9e8b820d94ad138175c22
 @main.route('/')
 def home():
     return render_template('home.html')
@@ -29,6 +42,7 @@ def teachers():
         return redirect(url_for('main.login'))
     return render_template('teachers.html')
 
+<<<<<<< HEAD
 @main.route('/login', methods=['GET', 'POST'])
 def login():
     error = None
@@ -63,3 +77,29 @@ def add_user():
     data = load_all_data()
     for table, rows in data.items():
         print(f"Table: {table}, Rows: {len(rows)}")
+=======
+# @main.route('/login', methods=['GET', 'POST'])
+# def login():
+#     error = None
+#     if request.method == 'POST':
+#         email = request.form['email']
+#         password = request.form['password']
+#
+#         if user1:
+#             session['user1'] = {
+#                 'user_id': user1[0],
+#                 'email': user1[1],
+#                 'role': user1[2]
+#             }
+#
+#             if user1[2] == 'student':
+#                 return redirect(url_for('main.students'))
+#             elif user1[2] == 'teacher':
+#                 return redirect(url_for('main.teachers'))
+#             else:
+#                 error = "Access denied for this role."
+#         else:
+#             error = "Invalid email or password."
+#
+#     return render_template('login.html', error=error)
+>>>>>>> 111dc9213569f8c24af9e8b820d94ad138175c22
