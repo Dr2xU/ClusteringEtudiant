@@ -1,5 +1,10 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'backend_prog')))
+
 from database.connection import get_connection
 from database.create_tables import create_all_tables
+
 
 def check_tables_exist(conn):
     cursor = conn.execute(
@@ -54,6 +59,8 @@ def load_all_data():
     return data
 
 if __name__ == "__main__":
+
     all_data = load_all_data()
+    
     for table, rows in all_data.items():
         print(f"Table: {table}, Rows: {len(rows)}")
