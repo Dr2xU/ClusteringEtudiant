@@ -6,20 +6,47 @@ main = Blueprint('main', __name__)
 def home():
     return render_template('home.html')
 
-@main.route('/students', methods=['GET', 'POST'])
+@main.route('/students')
 def students():
-    if request.method == 'POST':
-        student_name = request.form.get('student_name')
-        preferences = request.form.get('preferences')
-        print(f"Student: {student_name} | Preferences: {preferences}")
+    if 'user' not in session or session['user']['role'] != 'student':
+        return redirect(url_for('main.login'))
     return render_template('students.html')
 
-@main.route('/teachers', methods=['GET', 'POST'])
+@main.route('/teachers')
 def teachers():
-    if request.method == 'POST':
-        meeting_title = request.form.get('meeting_title')
-        meeting_date = request.form.get('meeting_date')
-        meeting_time = request.form.get('meeting_time')
-        meeting_description = request.form.get('meeting_description')
-        print(f"Meeting Created: {meeting_title} on {meeting_date} at {meeting_time}")
+    if 'user' not in session or session['user']['role'] != 'teacher':
+        return redirect(url_for('main.login'))
     return render_template('teachers.html')
+
+
+from flask import Blueprint, render_template, request, redirect, url_for, session
+from .db_access import get_user_by_email_password
+
+main = Blueprint('main', __name__)
+
+@main.route('/login', methods=['GET', 'POST'])
+def login():
+    error = None
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+
+        user = get_user_by_email_password(email, password)
+
+        if user:
+            session['user'] = {
+                'user_id': user[0],
+                'email': user[1],
+                'role': user[2]
+            }
+
+            if user[2] == 'student':
+                return redirect(url_for('main.students'))
+            elif user[2] == 'teacher':
+                return redirect(url_for('main.teachers'))
+            else:
+                error = "Access denied for this role."
+        else:
+            error = "Invalid email or password."
+
+    return render_template('login.html', error=error)
