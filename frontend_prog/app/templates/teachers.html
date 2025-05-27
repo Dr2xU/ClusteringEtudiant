@@ -1,5 +1,52 @@
 {% extends "base.html" %} {% block title %}Teachers{% endblock %} {% block
 content %}
-<h1>Teacher Page</h1>
-<p>This page will allow teachers to manage clustering and view groups.</p>
+<h1 class="mb-4">Teacher Dashboard</h1>
+
+<h3>Organize a Meeting</h3>
+
+<form method="post">
+  <div class="mb-3">
+    <label for="meetingTitle" class="form-label">Meeting Title</label>
+    <input
+      type="text"
+      class="form-control"
+      id="meetingTitle"
+      name="meeting_title"
+      placeholder="Enter meeting title"
+    />
+  </div>
+
+  <div class="mb-3">
+    <label for="meetingDate" class="form-label">Date</label>
+    <input
+      type="date"
+      class="form-control"
+      id="meetingDate"
+      name="meeting_date"
+    />
+  </div>
+
+  <div class="mb-3">
+    <label for="meetingTime" class="form-label">Time</label>
+    <input
+      type="time"
+      class="form-control"
+      id="meetingTime"
+      name="meeting_time"
+    />
+  </div>
+
+  <div class="mb-3">
+    <label for="meetingDescription" class="form-label">Description</label>
+    <textarea
+      class="form-control"
+      id="meetingDescription"
+      name="meeting_description"
+      rows="3"
+      placeholder="Optional details..."
+    ></textarea>
+  </div>
+
+  <button type="submit" class="btn btn-success">Create Meeting</button>
+</form>
 {% endblock %}
