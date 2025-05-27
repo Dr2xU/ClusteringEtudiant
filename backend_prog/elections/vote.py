@@ -1,0 +1,2 @@
+class vote:
+    pass

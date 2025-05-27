@@ -1,0 +1,2 @@
+class prefence:
+    pass
