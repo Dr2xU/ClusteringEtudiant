@@ -1,4 +1,5 @@
-from flask import Blueprint, render_template, request
+from flask import Blueprint, render_template, request, redirect, url_for, session
+from .db_access import get_user_by_email_password
 
 main = Blueprint('main', __name__)
 
@@ -17,12 +18,6 @@ def teachers():
     if 'user' not in session or session['user']['role'] != 'teacher':
         return redirect(url_for('main.login'))
     return render_template('teachers.html')
-
-
-from flask import Blueprint, render_template, request, redirect, url_for, session
-from .db_access import get_user_by_email_password
-
-main = Blueprint('main', __name__)
 
 @main.route('/login', methods=['GET', 'POST'])
 def login():
