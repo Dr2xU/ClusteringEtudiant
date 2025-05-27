@@ -1,8 +1,9 @@
-import user 
+from database.save_tables import save_user
+from utils.parser import parse_user, parse_teacher, parse_student, parse_election_participants, parse_group_members, parse_election_groups, parse_student_votes, parse_election_votes
 
-class admin(user):
-    def add_user():
-        pass
+class Admin():
+    def add_user(id, email, password, role):
+        save_user(id, email, password, role)
 
     def modify_user():
         pass
@@ -11,11 +12,14 @@ class admin(user):
         pass
 
     def view_users():
-        pass
+        users = parse_user()
+        return users
 
     def view_students():
-        pass
+        students = parse_student()
+        return students
 
     def view_teachers():
-        pass
+        teachers = parse_teacher()
+        return teachers
     

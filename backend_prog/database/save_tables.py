@@ -1,7 +1,7 @@
 # db/save_tables.py
 from database.connection import get_connection
 
-def save_user(user):
+def save_user(id, email, password, role):
     """
     user = {
         'user_id': str,
@@ -15,7 +15,7 @@ def save_user(user):
     cursor.execute('''
         INSERT OR REPLACE INTO users (user_id, email, password, role)
         VALUES (?, ?, ?, ?);
-    ''', (user['user_id'], user['email'], user['password'], user['role']))
+    ''', (id, email, password, role))
     conn.commit()
     conn.close()
 
