@@ -10,8 +10,7 @@ class user:
     def to_dict(self):
         return {
             "user_id": self.user_id,
-            "username": self.username,
-            "password": self.password
+            "username": self.username
         }
     
     def login(self):
