@@ -7,6 +7,7 @@ import pytest
 from app import create_app
 from app.extensions import db
 from app.models import Admin, Teacher, Student, Election, StudentVote
+import datetime
 
 @pytest.fixture
 def app():
@@ -47,7 +48,12 @@ def test_admin_creation_and_auth(session):
     assert not loaded.check_password("wrongpass")
 
 def test_teacher_model(session):
-    teacher = Teacher(email="teacher@test.com", first_name="Jane", department="Math")
+    teacher = Teacher(
+        unique_id="teacher001",  # <-- Add unique_id here!
+        email="teacher@test.com",
+        first_name="Jane",
+        department="Math"
+    )
     teacher.set_password("teachpass")
     session.add(teacher)
     session.commit()
@@ -58,7 +64,12 @@ def test_teacher_model(session):
     assert found.check_password("teachpass")
 
 def test_student_model(session):
-    student = Student(email="student@test.com", class_name="CS101", section="A")
+    student = Student(
+        unique_id="student001",  # <-- Add unique_id here!
+        email="student@test.com",
+        class_name="CS101",
+        section="A"
+    )
     student.set_password("studypass")
     session.add(student)
     session.commit()
@@ -70,17 +81,19 @@ def test_student_model(session):
     assert found.check_password("studypass")
 
 def test_election_creation(session):
-    teacher = Teacher(email="owner@test.com")
+    teacher = Teacher(
+        unique_id="owner001",  # <-- Add unique_id here!
+        email="owner@test.com"
+    )
     teacher.set_password("pass")
     session.add(teacher)
     session.commit()
 
     election = Election(
         title="Group Election",
-        start_date="2025-01-01",
-        end_date="2025-01-10",
+        start_date=datetime.date(2025, 1, 1),
+        end_date=datetime.date(2025, 1, 10),
         teacher_id=teacher.id,
-        max_votes_per_student=3,
         students_per_group=2
     )
     session.add(election)
@@ -91,17 +104,21 @@ def test_election_creation(session):
 
 def test_student_vote_model(session):
     # Setup students and election
-    s1 = Student(email="voter@test.com"); s1.set_password("123")
-    s2 = Student(email="target@test.com"); s2.set_password("456")
-    t = Teacher(email="t@e.com"); t.set_password("t")
-    session.add_all([s1, s2, t]); session.commit()
+    s1 = Student(unique_id="voter001", email="voter@test.com")
+    s1.set_password("123")
+    s2 = Student(unique_id="target001", email="target@test.com")
+    s2.set_password("456")
+    t = Teacher(unique_id="teach001", email="t@e.com")
+    t.set_password("t")
+
+    session.add_all([s1, s2, t])
+    session.commit()
 
     election = Election(
         title="Voting Test",
-        start_date="2025-01-01",
-        end_date="2025-01-10",
+        start_date=datetime.date(2025, 1, 1),
+        end_date=datetime.date(2025, 1, 10),
         teacher_id=t.id,
-        max_votes_per_student=3,
         students_per_group=2
     )
     session.add(election)

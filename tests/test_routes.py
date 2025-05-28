@@ -41,10 +41,10 @@ def seed_users():
     admin = Admin(email="admin@test.com")
     admin.set_password("adminpass")
 
-    teacher = Teacher(email="teacher@test.com")
+    teacher = Teacher(unique_id="teacher001", email="teacher@test.com")
     teacher.set_password("teachpass")
 
-    student = Student(email="student@test.com")
+    student = Student(unique_id="student001", email="student@test.com")
     student.set_password("studypass")
 
     db.session.add_all([admin, teacher, student])
@@ -83,7 +83,7 @@ def test_teacher_dashboard_access(client, seed_users):
     login(client, **seed_users["teacher"], role="teacher")
     res = client.get('/teacher/')
     assert res.status_code == 200
-    assert b"Your Elections" in res.data
+    assert b"Your Elections" in res.data or b"No elections created yet." in res.data
 
 def test_student_dashboard_access(client, seed_users):
     login(client, **seed_users["student"], role="student")

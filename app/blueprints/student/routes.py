@@ -15,7 +15,7 @@ from app.services import (
     update_student_profile,
     update_student_password
 )
-from app.models import Student
+from app.models import Student, StudentVote
 from app.dao import get_groups_by_election, get_members_by_group
 from functools import wraps
 
@@ -128,19 +128,29 @@ def vote(election_id):
 @student_bp.route('/election/<int:election_id>/results')
 @student_required
 def view_results(election_id):
-    """
-    View the group assignment after clustering is done.
-    """
     election = get_election_by_id(election_id)
     groups = get_groups_by_election(election_id)
 
-    # Build a mapping: group ID → list of student objects
+    # Get all votes for this election (list of StudentVote)
+    votes = StudentVote.query.filter_by(election_id=election_id).all()
+
+    # Build a mapping: voter_id -> dict of candidate_id -> score
+    votes_map = {}
+    for vote in votes:
+        votes_map.setdefault(vote.voter_id, {})[vote.candidate_id] = vote.score
+
+    # Build group data with members and their votes
     group_data = []
     for group in groups:
         members = get_members_by_group(group.id)
-        student_list = [Student.query.get(m.student_id) for m in members]
-        group_data.append(student_list)
+        students = [Student.query.get(m.student_id) for m in members]
+        group_data.append({
+            'group': group,
+            'members': students,
+        })
 
     return render_template('student/group_results.html',
                            election=election,
-                           group_data=group_data)
+                           group_data=group_data,
+                           votes_map=votes_map)
+

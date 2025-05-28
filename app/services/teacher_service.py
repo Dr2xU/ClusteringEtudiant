@@ -1,5 +1,6 @@
 import sys
 import os
+import uuid
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
@@ -39,7 +40,31 @@ def create_teacher(email: str, password: str, first_name: str = "", last_name: s
     )
     teacher.set_password(password)
 
-    # Delegate DB save to DAO
+    return add_teacher(teacher)
+
+def create_teacher_with_id(unique_id, email, password, first_name="", last_name="", department=""):
+    """
+    Create a new teacher with a unique ID and save it to the database. (Used for testing)
+    
+    Args:
+        email (str): Teacher's email
+        password (str): Plain-text password
+        first_name (str): Optional first name
+        last_name (str): Optional last name
+        department (str): Optional department info
+        
+    Returns:
+    Teacher: The saved Teacher object
+    """
+    unique_id = unique_id
+    teacher = Teacher(
+        email=email,
+        first_name=first_name,
+        last_name=last_name,
+        department=department,
+        unique_id=unique_id
+    )
+    teacher.set_password(password)
     return add_teacher(teacher)
 
 

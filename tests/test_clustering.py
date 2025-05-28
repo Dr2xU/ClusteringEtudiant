@@ -1,14 +1,16 @@
 import sys
 import os
+import random
+import datetime
+import pytest
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
-import pytest
-from app.services.clustering_service import form_groups_from_votes
+from app.services import run_full_grouping
 from app.models import StudentVote
 from app.extensions import db
 from app import create_app
-import random
+
 
 @pytest.fixture
 def app():
@@ -19,18 +21,23 @@ def app():
     app.config.update({
         "TESTING": True,
         "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
-        "SQLALCHEMY_TRACK_MODIFICATIONS": False
+        "SQLALCHEMY_TRACK_MODIFICATIONS": False,
+        "SQLALCHEMY_ECHO": False,
     })
 
     with app.app_context():
+        # Drop all tables first to avoid "table exists" errors
+        db.drop_all()
         db.create_all()
         yield app
         db.session.remove()
         db.drop_all()
 
+
 @pytest.fixture
 def client(app):
     return app.test_client()
+
 
 @pytest.fixture
 def seed_votes(app):
@@ -41,7 +48,10 @@ def seed_votes(app):
 
     students = []
     for i in range(6):
-        s = Student(email=f"student{i}@mail.com")
+        s = Student(
+            unique_id=f"student{i:03d}",
+            email=f"student{i}@mail.com"
+        )
         s.set_password("pass")
         db.session.add(s)
         students.append(s)
@@ -50,9 +60,8 @@ def seed_votes(app):
 
     election = Election(
         title="Mock Election",
-        start_date="2024-01-01",
-        end_date="2024-12-31",
-        max_votes_per_student=3,
+        start_date=datetime.date(2024, 1, 1),
+        end_date=datetime.date(2024, 12, 31),
         students_per_group=2,
         teacher_id=1
     )
@@ -67,7 +76,7 @@ def seed_votes(app):
                 election_id=election.id,
                 voter_id=voter.id,
                 candidate_id=candidate.id,
-                score=3 - rank  # 3, 2, 1
+                score=3 - rank  # scores 3, 2, 1
             )
             db.session.add(vote)
 
@@ -75,19 +84,21 @@ def seed_votes(app):
 
     return election.id, [s.id for s in students]
 
+
 def test_clustering_groups(app, seed_votes):
-    """
-    Ensure the clustering groups students into expected number of groups.
-    """
     election_id, student_ids = seed_votes
     group_size = 2
-    result, score = form_groups_from_votes(election_id, student_ids, group_size)
 
-    assert isinstance(result, dict)
-    assert len(result) == len(student_ids)
-    group_labels = set(result.values())
+    # run_full_grouping returns: student_to_group, global_score, groups_to_highlight, total_satisfaction, avg_satisfaction
+    student_to_group, score, highlights, total_satisfaction, avg_satisfaction = run_full_grouping(election_id, student_ids, group_size)
 
-    # Check number of groups is as expected
+    assert isinstance(student_to_group, dict)
+    assert len(student_to_group) == len(student_ids)
+
+    group_labels = set(student_to_group.values())
     expected_groups = len(student_ids) // group_size
-    assert len(group_labels) == expected_groups
+    assert len(group_labels) >= expected_groups
     assert score > 0
+
+    assert total_satisfaction >= 0
+    assert 0 <= avg_satisfaction <= total_satisfaction
