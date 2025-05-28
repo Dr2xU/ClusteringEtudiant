@@ -1,20 +1,23 @@
 import sys
 import os
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
-
-from flask import Blueprint, render_template, redirect, url_for, request, flash, session
-from app.services import (
-    create_teacher, list_all_teachers,
-    create_student, list_all_students,
-    delete_teacher, delete_student  # <-- import delete services
-)
 import datetime
 import random
 import string
-from app.models import Teacher, Student
-from app.extensions import db  # needed for rollback on error
 from functools import wraps
+from flask import Blueprint, render_template, redirect, url_for, request, flash, session
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+
+
+from app.services import (
+    create_teacher, list_all_teachers,
+    create_student, list_all_students,
+    delete_teacher, delete_student
+)
+
+from app.models import Teacher, Student
+from app.extensions import db 
+
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 

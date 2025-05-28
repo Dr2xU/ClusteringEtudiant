@@ -12,7 +12,7 @@ class OpenAIService:
         self.api_key = os.getenv("OPENAI_API_KEY")
         if self.api_key:
             self.client = OpenAI(api_key=self.api_key)
-            self.model = "gpt-4o-mini"  # or your preferred model
+            self.model = "gpt-4o-mini"
 
         self.system_prompt = (
             "You are a creative group naming assistant. "

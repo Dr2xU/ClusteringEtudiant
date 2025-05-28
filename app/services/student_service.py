@@ -3,7 +3,7 @@ import os
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
-from app.dao.student_dao import (
+from app.dao import (
     add_student,
     get_student_by_email,
     delete_student_by_id,
@@ -130,14 +130,3 @@ def list_all_students_service() -> list:
         List[Student]: List of all student records
     """
     return list_all_students()  # Delegate to DAO
-
-def list_elections_by_teacher() -> list:
-    """
-    List all elections associated with a teacher.
-
-    Returns:
-        List[Election]: List of elections for the teacher
-    """
-    # This function is not implemented in the student service, but would typically
-    # query the database for elections related to a specific teacher.
-    raise NotImplementedError("This function should be implemented in the teacher service.")

@@ -3,7 +3,7 @@ import os
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
-from app.dao.teacher_dao import (
+from app.dao import (
     add_teacher,
     get_teacher_by_email,
     delete_teacher_by_id,
