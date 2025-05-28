@@ -17,11 +17,21 @@ from app.services import (
 )
 from app.models import Student
 from app.dao import get_groups_by_election, get_members_by_group
-
+from functools import wraps
 
 student_bp = Blueprint('student', __name__, url_prefix='/student')
 
+def student_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if session.get('role') != 'student':
+            flash("You must be logged in as a student to access this page.", "warning")
+            return redirect(url_for('auth.login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
 @student_bp.route('/')
+@student_required
 def dashboard():
     student_id = session.get('user_id')
     if not student_id:
@@ -35,6 +45,7 @@ def dashboard():
     return render_template('student/dashboard.html', elections=elections, student=student)
 
 @student_bp.route('/complete-profile', methods=['GET', 'POST'])
+@student_required
 def complete_profile():
     student_id = session.get('user_id')
     student = get_student_by_id(student_id)
@@ -62,6 +73,7 @@ def complete_profile():
 
 
 @student_bp.route('/election/<int:election_id>/vote', methods=['GET', 'POST'])
+@student_required
 def vote(election_id):
     student_id = session.get('user_id')
     election = get_election_by_id(election_id)
@@ -114,6 +126,7 @@ def vote(election_id):
 
 
 @student_bp.route('/election/<int:election_id>/results')
+@student_required
 def view_results(election_id):
     """
     View the group assignment after clustering is done.

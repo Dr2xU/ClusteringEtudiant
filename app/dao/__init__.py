@@ -16,7 +16,8 @@ from .teacher_dao import (
     list_all_teachers,
     delete_teacher_by_id,
     update_teacher,
-    update_teacher_password
+    update_teacher_password,
+    list_all_elections
 )
 
 from .student_dao import (

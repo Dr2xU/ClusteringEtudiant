@@ -20,7 +20,6 @@ def create_election(
     start_date: datetime,
     end_date: datetime,
     teacher_id: int,
-    max_votes_per_student: int = 3,
     students_per_group: int = 3,
     description: str = "",
     student_ids: Optional[List[int]] = None
@@ -33,7 +32,6 @@ def create_election(
         start_date (datetime): Start datetime
         end_date (datetime): End datetime
         teacher_id (int): Teacher who created election
-        max_votes_per_student (int): Max votes per student
         students_per_group (int): Group size
         description (str): Optional description
         student_ids (list[int], optional): Students to associate with election
@@ -46,7 +44,6 @@ def create_election(
         start_date=start_date,
         end_date=end_date,
         teacher_id=teacher_id,
-        max_votes_per_student=max_votes_per_student,
         students_per_group=students_per_group,
         description=description,
         status='running'

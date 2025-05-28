@@ -3,7 +3,6 @@ import os
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
-
 from app.extensions import db
 
 class Group(db.Model):
@@ -21,10 +20,13 @@ class Group(db.Model):
     group_name = db.Column(db.String(100))
     
     # Foreign key to the election this group belongs to
-    election_id = db.Column(db.Integer, db.ForeignKey('elections.id'), nullable=False)
+    election_id = db.Column(db.Integer, db.ForeignKey('elections.id', ondelete='CASCADE'), nullable=False)
 
     # Relationship to the Election model
-    election = db.relationship('Election', backref=db.backref('groups', lazy=True))
+    election = db.relationship(
+        'Election',
+        backref=db.backref('groups', lazy=True, cascade='all, delete-orphan', passive_deletes=True)
+    )
 
     def __repr__(self):
         """
@@ -43,14 +45,20 @@ class GroupMember(db.Model):
     __tablename__ = 'group_members'
 
     # Composite primary key (group_id + student_id)
-    group_id = db.Column(db.Integer, db.ForeignKey('groups.id'), primary_key=True)
-    student_id = db.Column(db.Integer, db.ForeignKey('students.id'), primary_key=True)
+    group_id = db.Column(db.Integer, db.ForeignKey('groups.id', ondelete='CASCADE'), primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey('students.id', ondelete='CASCADE'), primary_key=True)
 
     # Relationship to Group
-    group = db.relationship('Group', backref=db.backref('members', cascade='all, delete-orphan'))
+    group = db.relationship(
+        'Group',
+        backref=db.backref('members', cascade='all, delete-orphan', passive_deletes=True)
+    )
 
     # Relationship to Student
-    student = db.relationship('Student', backref=db.backref('group_memberships', cascade='all, delete-orphan'))
+    student = db.relationship(
+        'Student',
+        backref=db.backref('group_memberships', cascade='all, delete-orphan', passive_deletes=True)
+    )
 
     def __repr__(self):
         """

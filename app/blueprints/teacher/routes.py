@@ -17,7 +17,20 @@ from datetime import datetime
 
 teacher_bp = Blueprint('teacher', __name__, url_prefix='/teacher')
 
+from functools import wraps
+
+def teacher_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if session.get('role') != 'teacher':
+            flash("You must be logged in as a teacher to access this page.", "warning")
+            return redirect(url_for('auth.login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+
 @teacher_bp.route('/')
+@teacher_required
 def dashboard():
     """
     Teacher dashboard that lists all elections created by the logged-in teacher.
@@ -28,6 +41,7 @@ def dashboard():
     return render_template('teacher/dashboard.html', elections=elections, teacher=teacher)
 
 @teacher_bp.route('/election/new', methods=['GET', 'POST'])
+@teacher_required
 def create_new_election():
     """
     Create a new election. On GET, show form. On POST, save it.
@@ -59,6 +73,7 @@ def create_new_election():
         return render_template('teacher/election_form.html', students=students)
 
 @teacher_bp.route('/complete-profile', methods=['GET', 'POST'])
+@teacher_required
 def complete_profile():
     teacher_id = session.get('user_id')
     teacher = get_teacher_by_id(teacher_id)
@@ -86,6 +101,7 @@ def complete_profile():
 
 
 @teacher_bp.route('/election/<int:election_id>/manage')
+@teacher_required
 def manage_election(election_id):
     """
     View and manage a specific election (students, votes, status).
@@ -94,6 +110,7 @@ def manage_election(election_id):
     return render_template('teacher/manage_election.html', election=election)
 
 @teacher_bp.route('/election/<int:election_id>/delete')
+@teacher_required
 def delete_election_route(election_id):
     """
     Delete an election.
@@ -105,6 +122,7 @@ def delete_election_route(election_id):
     return redirect(url_for('teacher.dashboard'))
 
 @teacher_bp.route('/election/<int:election_id>/status/<string:status>')
+@teacher_required
 def change_election_status(election_id, status):
     """
     Change the status of an election (e.g., pause, finish, resume).
@@ -116,6 +134,7 @@ def change_election_status(election_id, status):
     return redirect(url_for('teacher.manage_election', election_id=election_id))
 
 @teacher_bp.route('/election/<int:election_id>/generate-groups')
+@teacher_required
 def generate_groups(election_id):
     election = get_election_by_id(election_id)
     if not election:
@@ -143,6 +162,7 @@ def generate_groups(election_id):
 
 
 @teacher_bp.route('/election/<int:election_id>/groups')
+@teacher_required
 def view_groups(election_id):
     """
     Display the generated groups for an election.

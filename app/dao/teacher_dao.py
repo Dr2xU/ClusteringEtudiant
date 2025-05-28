@@ -53,6 +53,18 @@ def list_all_teachers() -> list:
     """
     return Teacher.query.order_by(Teacher.created_at.desc()).all()
 
+def list_all_elections(teacher_id: int) -> list:
+    """
+    List all elections created by a specific teacher.
+
+    Args:
+        teacher_id (int): The ID of the teacher whose elections to retrieve.
+
+    Returns:
+        list: A list of Election objects associated with the teacher.
+    """
+    return Teacher.query.get(teacher_id).elections if get_teacher_by_id(teacher_id) else []
+
 def update_teacher(teacher_id: int, first_name: str, last_name: str, department: str) -> Teacher:
     """
     Update basic profile information for a teacher.

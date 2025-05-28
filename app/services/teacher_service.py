@@ -10,7 +10,8 @@ from app.dao.teacher_dao import (
     list_all_teachers,
     get_teacher_by_id,
     update_teacher as dao_update_teacher_profile,
-    update_teacher_password as dao_update_teacher_password
+    update_teacher_password as dao_update_teacher_password,
+    list_all_elections
 )
 from app.models import Teacher
 
@@ -122,3 +123,15 @@ def list_all_teachers_service() -> list:
         list of Teacher
     """
     return list_all_teachers()
+
+def list_all_elections_service(teacher_id: int) -> list:
+    """
+    List all elections created by a specific teacher via DAO.
+
+    Args:
+        teacher_id (int): The ID of the teacher
+
+    Returns:
+        list of Election objects associated with the teacher
+    """
+    return list_all_elections(teacher_id)

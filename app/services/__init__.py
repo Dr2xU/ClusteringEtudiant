@@ -17,7 +17,8 @@ from .teacher_service import (
     delete_teacher,
     get_teacher_by_id,
     update_teacher_profile,
-    update_teacher_password
+    update_teacher_password,
+    list_all_elections_service
 )
 
 from .student_service import (

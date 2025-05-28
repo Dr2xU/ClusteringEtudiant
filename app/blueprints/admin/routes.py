@@ -3,7 +3,7 @@ import os
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
-from flask import Blueprint, render_template, redirect, url_for, request, flash
+from flask import Blueprint, render_template, redirect, url_for, request, flash, session
 from app.services import (
     create_teacher, list_all_teachers,
     create_student, list_all_students,
@@ -14,6 +14,7 @@ import random
 import string
 from app.models import Teacher, Student
 from app.extensions import db  # needed for rollback on error
+from functools import wraps
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -33,24 +34,38 @@ def generate_password(length=12):
     chars = string.ascii_letters + string.digits + string.punctuation
     return ''.join(random.choice(chars) for _ in range(length))
 
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if session.get('role') != 'admin':
+            flash("You must be logged in as a admin to access this page.", "warning")
+            return redirect(url_for('auth.login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+
 @admin_bp.route('/')
+@admin_required
 def dashboard():
     """Redirect to teachers list by default."""
     return redirect(url_for('admin.view_teachers'))
 
 @admin_bp.route('/teachers')
+@admin_required
 def view_teachers():
     """View all registered teachers."""
     teachers = list_all_teachers()
     return render_template('admin/users.html', users=teachers, role='teacher')
 
 @admin_bp.route('/students')
+@admin_required
 def view_students():
     """View all registered students."""
     students = list_all_students()
     return render_template('admin/users.html', users=students, role='student')
 
 @admin_bp.route('/add/<role>', methods=['GET', 'POST'])
+@admin_required
 def add_user(role):
     if request.method == 'POST':
         unique_id = request.form.get('unique_id')  # read unique_id from form!
@@ -95,6 +110,7 @@ def add_user(role):
     )
 
 @admin_bp.route('/delete/<role>/<int:user_id>', methods=['POST'])
+@admin_required
 def delete_user(role, user_id):
     if role not in ['teacher', 'student']:
         flash('Invalid role specified.', 'danger')

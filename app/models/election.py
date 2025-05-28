@@ -9,8 +9,8 @@ from datetime import datetime
 # Association table for many-to-many between Election and Student
 election_students = db.Table(
     'election_students',
-    db.Column('election_id', db.Integer, db.ForeignKey('elections.id'), primary_key=True),
-    db.Column('student_id', db.Integer, db.ForeignKey('students.id'), primary_key=True)
+    db.Column('election_id', db.Integer, db.ForeignKey('elections.id', ondelete='CASCADE'), primary_key=True),
+    db.Column('student_id', db.Integer, db.ForeignKey('students.id', ondelete='CASCADE'), primary_key=True)
 )
 
 class Election(db.Model):
@@ -39,17 +39,21 @@ class Election(db.Model):
     students_per_group = db.Column(db.Integer, nullable=False, default=3)
 
     # Foreign key to the teacher who created the election
-    teacher_id = db.Column(db.Integer, db.ForeignKey('teachers.id'), nullable=False)
+    teacher_id = db.Column(db.Integer, db.ForeignKey('teachers.id', ondelete='CASCADE'), nullable=False)
 
     # Relationship to the teacher (assuming Teacher model exists)
-    teacher = db.relationship('Teacher', backref=db.backref('elections', lazy=True))
+    teacher = db.relationship(
+        'Teacher',
+        backref=db.backref('elections', lazy=True, cascade='all, delete-orphan', passive_deletes=True)
+    )
 
     # Many-to-many relationship with students via association table
     students = db.relationship(
         'Student',
         secondary=election_students,
         back_populates='elections',
-        lazy='subquery'
+        lazy='subquery',
+        passive_deletes=True
     )
 
     # Status of the election (e.g., running, paused, finished)

@@ -13,7 +13,7 @@ load_dotenv()
 from flask import redirect
 from app.extensions import db  # SQLAlchemy instance
 from app.config import Config  # App configuration
-from app.models import Admin  # Ensure models are imported for table creation
+from app.models import Admin, Teacher, Student, StudentVote, Election, Group, GroupMember  # Ensure models are imported for table creation
 
 from app import create_app
 
@@ -60,7 +60,34 @@ def main():
             return jsonify({"error": f"Failed to create student: {str(e)}"}), 500
         return jsonify({"message": "Student created", "email": email, "password": password})
 
+    @app.route('/dump_all_data')
+    def dump_all_data():
+        try:
+            admins = [serialize_model(a) for a in Admin.query.all()]
+            teachers = [serialize_model(t) for t in Teacher.query.all()]
+            students = [serialize_model(s) for s in Student.query.all()]
+            elections = [serialize_model(e) for e in Election.query.all()]
+            votes = [serialize_model(v) for v in StudentVote.query.all()]
+            groups = [serialize_model(g) for g in Group.query.all()]
+            group_members = [serialize_model(m) for m in GroupMember.query.all()]
+
+            return jsonify({
+                "admins": admins,
+                "teachers": teachers,
+                "students": students,
+                "elections": elections,
+                "votes": votes,
+                "groups": groups,
+                "group_members": group_members
+            })
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+
     return app
+
+def serialize_model(model):
+    """Serialize SQLAlchemy model instance into dict"""
+    return {c.name: getattr(model, c.name) for c in model.__table__.columns}
 
 if __name__ == '__main__':
     app = main()
