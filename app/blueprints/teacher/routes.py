@@ -23,8 +23,9 @@ def dashboard():
     Teacher dashboard that lists all elections created by the logged-in teacher.
     """
     teacher_id = session.get('user_id')
+    teacher = get_teacher_by_id(teacher_id)
     elections = list_elections_by_teacher(teacher_id)
-    return render_template('teacher/dashboard.html', elections=elections)
+    return render_template('teacher/dashboard.html', elections=elections, teacher=teacher)
 
 @teacher_bp.route('/election/new', methods=['GET', 'POST'])
 def create_new_election():
@@ -36,7 +37,6 @@ def create_new_election():
         description = request.form.get('description', '')
         start_date = datetime.strptime(request.form['start_date'], '%Y-%m-%d')
         end_date = datetime.strptime(request.form['end_date'], '%Y-%m-%d')
-        max_votes = int(request.form['max_votes_per_student'])
         group_size = int(request.form['students_per_group'])
         teacher_id = session.get('user_id')
         selected_student_ids = request.form.getlist('student_ids')  # list of strings
@@ -47,7 +47,6 @@ def create_new_election():
             start_date=start_date,
             end_date=end_date,
             teacher_id=teacher_id,
-            max_votes_per_student=max_votes,
             students_per_group=group_size,
             description=description,
             student_ids=selected_student_ids
@@ -65,7 +64,7 @@ def complete_profile():
     teacher = get_teacher_by_id(teacher_id)
 
     if request.method == 'POST':
-        first_name = request.form.get('first_name')
+        first_name = request.form.get('first_name')         
         last_name = request.form.get('last_name')
         department = request.form.get('department')
         password = request.form.get('password')
@@ -119,13 +118,29 @@ def change_election_status(election_id, status):
 @teacher_bp.route('/election/<int:election_id>/generate-groups')
 def generate_groups(election_id):
     election = get_election_by_id(election_id)
-    students = [s.id for s in election.students]  # Filter students belonging to the election
-    student_to_group, score = form_groups_from_votes(
-        election_id, students, election.students_per_group
-    )
+    if not election:
+        flash("Election not found.", "danger")
+        return redirect(url_for('teacher.dashboard'))
+
+    students = [s.id for s in election.students]
+    group_size = election.students_per_group
+
+    if len(students) < group_size:
+        flash(f"Not enough students to form a group (need at least {group_size}).", "warning")
+        return redirect(url_for('teacher.manage_election', election_id=election_id))
+
+    try:
+        student_to_group, score = form_groups_from_votes(
+            election_id, students, group_size
+        )
+    except Exception as e:
+        flash(f"Error during group formation: {str(e)}", "danger")
+        return redirect(url_for('teacher.manage_election', election_id=election_id))
+
     persist_groups(election_id, student_to_group)
-    flash(f"Groups generated (Affinity Score: {score}).", "success")
+    flash(f"Groups generated (Affinity Score: {score:.2f}).", "success")
     return redirect(url_for('teacher.view_groups', election_id=election_id))
+
 
 @teacher_bp.route('/election/<int:election_id>/groups')
 def view_groups(election_id):

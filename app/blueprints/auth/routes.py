@@ -28,6 +28,12 @@ def login():
     General login page for all roles: admin, teacher, student.
     On POST, attempts to authenticate and redirect to the appropriate dashboard.
     """
+
+    # Redirect logged-in users away from login page
+    if 'user_id' in session and 'role' in session:
+        role = session['role']
+        return redirect(url_for(f'{role}.dashboard'))
+
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
@@ -60,6 +66,7 @@ def login():
             flash('Invalid credentials', 'danger')
 
     return render_template('login.html')
+
 
 @auth_bp.route('/logout')
 def logout():

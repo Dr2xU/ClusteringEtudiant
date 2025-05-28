@@ -35,9 +35,6 @@ class Election(db.Model):
     start_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     end_date = db.Column(db.DateTime, nullable=False)
 
-    # Maximum number of votes each student can make
-    max_votes_per_student = db.Column(db.Integer, nullable=False, default=3)
-
     # Maximum number of students allowed per group
     students_per_group = db.Column(db.Integer, nullable=False, default=3)
 

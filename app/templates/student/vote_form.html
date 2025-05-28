@@ -11,18 +11,28 @@
 </p>
 
 <form method="POST">
-  <p>Select up to <strong>{{ election.max_votes_per_student }}</strong> students in preferred order:</p>
+  <p>
+    Assign scores to students (0 means no vote). 
+    Total points to share: <strong id="points-left">100</strong>
+  </p>
 
   <ul style="list-style-type: none; padding-left: 0;">
     {% for student in students %}
       {% if student.id != session['user_id'] %}
-        <li>
-          <input type="checkbox" name="candidate_ids" value="{{ student.id }}"
-                 id="student_{{ student.id }}"
-                 {% if student.id in voted_ids %}checked{% endif %}>
-          <label for="student_{{ student.id }}">
+        <li style="margin-bottom: 10px;">
+          <label for="score_{{ student.id }}">
             {{ student.first_name }} {{ student.last_name }} ({{ student.email }})
           </label>
+          <input 
+            type="number" 
+            id="score_{{ student.id }}" 
+            name="scores[{{ student.id }}]" 
+            min="0" 
+            max="100" 
+            value="{{ voted_ids.get(student.id, 0) }}" 
+            style="width: 60px; margin-left: 10px;"
+            class="score-input"
+          >
         </li>
       {% endif %}
     {% endfor %}
@@ -30,4 +40,27 @@
 
   <button type="submit" class="btn">Submit Vote</button>
 </form>
+
+<script>
+  // JavaScript to update points left dynamically
+  function updatePointsLeft() {
+    const inputs = document.querySelectorAll('.score-input');
+    let total = 0;
+    inputs.forEach(input => {
+      const val = parseInt(input.value) || 0;
+      total += val;
+    });
+    const pointsLeft = 100 - total;
+    document.getElementById('points-left').textContent = pointsLeft >= 0 ? pointsLeft : 0;
+  }
+
+  // Attach event listeners to all inputs
+  document.querySelectorAll('.score-input').forEach(input => {
+    input.addEventListener('input', updatePointsLeft);
+  });
+
+  // Initialize on page load
+  updatePointsLeft();
+</script>
+
 {% endblock %}

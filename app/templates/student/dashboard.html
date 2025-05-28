@@ -3,7 +3,8 @@
 {% block title %}Student Dashboard{% endblock %}
 
 {% block content %}
-<h2>Welcome, {{ session.get('email') }}</h2>
+<h2>Welcome, {{ student.first_name if student.first_name else student.email }}</h2>
+
 
 {% if elections %}
   <h3>Available Elections</h3>
