@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Add {{ role | capitalize }}{% endblock %}
+
+{% block content %}
+<h2>Add New {{ role | capitalize }}</h2>
+
+<form method="POST">
+  <div class="mb-3">
+    <label for="unique_id" class="form-label">User ID:</label>
+    <input type="text" class="form-control" name="unique_id" id="unique_id" value="{{ unique_id }}" readonly>
+  </div>
+
+  <div class="mb-3">
+    <label for="email" class="form-label">Email:</label>
+    <input type="email" class="form-control" name="email" id="email" value="{{ email }}" readonly>
+  </div>
+
+  <div class="mb-3">
+    <label for="password" class="form-label">Password:</label>
+    <input type="text" class="form-control" name="password" id="password" value="{{ password }}" readonly>
+  </div>
+
+  <div class="mb-3">
+    <label for="first_name" class="form-label">First Name:</label>
+    <input type="text" class="form-control" name="first_name" id="first_name">
+  </div>
+
+  <div class="mb-3">
+    <label for="last_name" class="form-label">Last Name:</label>
+    <input type="text" class="form-control" name="last_name" id="last_name">
+  </div>
+
+  {% if role == 'student' %}
+    <div class="mb-3">
+      <label for="class_name" class="form-label">Class Name:</label>
+      <input type="text" class="form-control" name="class_name" id="class_name">
+    </div>
+
+    <div class="mb-3">
+      <label for="section" class="form-label">Section:</label>
+      <input type="text" class="form-control" name="section" id="section">
+    </div>
+  {% endif %}
+
+  <button type="submit" class="btn btn-success">Create {{ role | capitalize }}</button>
+  <a href="{{ url_for('admin.view_teachers' if role=='teacher' else 'admin.view_students') }}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

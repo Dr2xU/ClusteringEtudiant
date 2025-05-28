@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Clustering of Students{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+  <!-- Optional Navbar -->
+  <nav>
+    {% if session.get('role') %}
+      <a href="{{ url_for(session['role'] + '.dashboard') }}">Dashboard</a>
+      <a href="{{ url_for('auth.logout') }}">Logout</a>
+      <span style="color: white;">Logged in as {{ session.get('email') }} ({{ session.get('role') }})</span>
+    {% else %}
+      <a href="{{ url_for('auth.login') }}">Login</a>
+    {% endif %}
+  </nav>
+
+  <div class="container">
+
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <!-- Main content -->
+    {% block content %}{% endblock %}
+
+  </div>
+
+</body>
+</html>

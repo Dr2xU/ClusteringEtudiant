@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Teacher Dashboard{% endblock %}
+
+{% block content %}
+<h2>Welcome, {{ session.get('email') }}</h2>
+
+<a href="{{ url_for('teacher.create_new_election') }}" class="btn">+ Create New Election</a>
+
+{% if elections %}
+  <h3>Your Elections</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Start</th>
+        <th>End</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for election in elections %}
+      <tr>
+        <td>{{ election.title }}</td>
+        <td>{{ election.start_date.strftime('%Y-%m-%d') }}</td>
+        <td>{{ election.end_date.strftime('%Y-%m-%d') }}</td>
+        <td>{{ election.status }}</td>
+        <td>
+          <a href="{{ url_for('teacher.manage_election', election_id=election.id) }}" class="btn">Manage</a>
+          <a href="{{ url_for('teacher.view_groups', election_id=election.id) }}" class="btn">Groups</a>
+          <a href="{{ url_for('teacher.delete_election_route', election_id=election.id) }}"
+             onclick="return confirm('Delete this election?')" class="btn">Delete</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <p>No elections created yet.</p>
+{% endif %}
+{% endblock %}

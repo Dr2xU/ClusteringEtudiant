@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<h2>Login</h2>
+
+<form method="POST" action="{{ url_for('auth.login') }}">
+  <label for="email">Email:</label>
+  <input type="email" name="email" id="email" required>
+
+  <label for="password">Password:</label>
+  <input type="password" name="password" id="password" required>
+
+  <label for="role">Role:</label>
+  <select name="role" id="role" required>
+    <option value="" disabled selected>Select your role</option>
+    <option value="admin">Admin</option>
+    <option value="teacher">Teacher</option>
+    <option value="student">Student</option>
+  </select>
+
+  <button type="submit" class="btn">Login</button>
+</form>
+{% endblock %}

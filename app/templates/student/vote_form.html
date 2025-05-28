@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Vote - {{ election.title }}{% endblock %}
+
+{% block content %}
+<h2>Vote in Election: {{ election.title }}</h2>
+
+<p>
+  Voting open from <strong>{{ election.start_date.strftime('%Y-%m-%d') }}</strong> 
+  to <strong>{{ election.end_date.strftime('%Y-%m-%d') }}</strong>
+</p>
+
+<form method="POST">
+  <p>Select up to <strong>{{ election.max_votes_per_student }}</strong> students in preferred order:</p>
+
+  <ul style="list-style-type: none; padding-left: 0;">
+    {% for student in students %}
+      {% if student.id != session['user_id'] %}
+        <li>
+          <input type="checkbox" name="candidate_ids" value="{{ student.id }}"
+                 id="student_{{ student.id }}"
+                 {% if student.id in voted_ids %}checked{% endif %}>
+          <label for="student_{{ student.id }}">
+            {{ student.first_name }} {{ student.last_name }} ({{ student.email }})
+          </label>
+        </li>
+      {% endif %}
+    {% endfor %}
+  </ul>
+
+  <button type="submit" class="btn">Submit Vote</button>
+</form>
+{% endblock %}

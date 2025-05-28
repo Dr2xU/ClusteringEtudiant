@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Election - {{ election.title }}{% endblock %}
+
+{% block content %}
+<h2>Manage Election: {{ election.title }}</h2>
+
+<p>
+  <strong>Description:</strong> {{ election.description or 'N/A' }}<br>
+  <strong>Start:</strong> {{ election.start_date.strftime('%Y-%m-%d') }}<br>
+  <strong>End:</strong> {{ election.end_date.strftime('%Y-%m-%d') }}<br>
+  <strong>Status:</strong> {{ election.status }}<br>
+  <strong>Votes/Student:</strong> {{ election.max_votes_per_student }}<br>
+  <strong>Students/Group:</strong> {{ election.students_per_group }}
+</p>
+
+<div style="margin: 15px 0;">
+  <a class="btn" href="{{ url_for('teacher.change_election_status', election_id=election.id, status='paused') }}">Pause</a>
+  <a class="btn" href="{{ url_for('teacher.change_election_status', election_id=election.id, status='running') }}">Resume</a>
+  <a class="btn" href="{{ url_for('teacher.change_election_status', election_id=election.id, status='finished') }}">Finish</a>
+  <a class="btn" href="{{ url_for('teacher.generate_groups', election_id=election.id) }}">Generate Groups</a>
+  <a class="btn" href="{{ url_for('teacher.view_groups', election_id=election.id) }}">View Groups</a>
+</div>
+
+<h3>Students Who Participated</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Email</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% set voters = election.votes | map(attribute='voter') | list %}
+    {% for student in voters | unique(attribute='id') %}
+      <tr>
+        <td>{{ student.first_name }} {{ student.last_name }}</td>
+        <td>{{ student.email }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<a class="btn" href="{{ url_for('teacher.delete_election_route', election_id=election.id) }}" 
+   onclick="return confirm('Are you sure you want to delete this election?');">
+   Delete Election
+</a>
+
+{% endblock %}

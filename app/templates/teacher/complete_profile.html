@@ -1,0 +1,30 @@
+<h2>Complete Your Profile</h2>
+
+<form method="POST" class="mb-3">
+  <div class="mb-3">
+    <label for="first_name" class="form-label">First Name:</label>
+    <input type="text" class="form-control" id="first_name" name="first_name" value="{{ teacher.first_name or '' }}" required>
+  </div>
+
+  <div class="mb-3">
+    <label for="last_name" class="form-label">Last Name:</label>
+    <input type="text" class="form-control" id="last_name" name="last_name" value="{{ teacher.last_name or '' }}" required>
+  </div>
+
+  <div class="mb-3">
+    <label for="department" class="form-label">Department:</label>
+    <input type="text" class="form-control" id="department" name="department" value="{{ teacher.department or '' }}" required>
+  </div>
+
+  <div class="mb-3">
+    <label for="password" class="form-label">New Password (leave blank to keep current):</label>
+    <input type="password" class="form-control" id="password" name="password">
+  </div>
+
+  <div class="mb-3">
+    <label for="password_confirm" class="form-label">Confirm Password:</label>
+    <input type="password" class="form-control" id="password_confirm" name="password_confirm">
+  </div>
+
+  <button type="submit" class="btn btn-primary">Update Profile</button>
+</form>

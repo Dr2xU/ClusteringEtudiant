@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}View Groups - {{ election.title }}{% endblock %}
+
+{% block content %}
+<h2>Groups for Election: {{ election.title }}</h2>
+
+<p>
+  <strong>Start:</strong> {{ election.start_date.strftime('%Y-%m-%d') }}<br>
+  <strong>End:</strong> {{ election.end_date.strftime('%Y-%m-%d') }}<br>
+  <strong>Group Size:</strong> {{ election.students_per_group }}
+</p>
+
+{% if election.groups %}
+  {% for group in election.groups %}
+    <div style="margin-bottom: 30px;">
+      <h3>Group {{ loop.index }}</h3>
+      <ul>
+        {% for member in group.members %}
+          <li>
+            {{ member.student.first_name }} {{ member.student.last_name }}
+            ({{ member.student.email }})
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endfor %}
+{% else %}
+  <p>No groups have been generated for this election yet.</p>
+{% endif %}
+
+<a href="{{ url_for('teacher.generate_groups', election_id=election.id) }}" class="btn">
+  Regenerate Groups
+</a>
+{% endblock %}

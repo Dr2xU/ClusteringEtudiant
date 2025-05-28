@@ -1,0 +1,136 @@
+import sys
+import os
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session
+from app.services import (
+    create_election, list_elections_by_teacher, get_election_by_id,
+    update_election_status, delete_election,
+    list_all_students,  # Assuming a helper for listing students
+    form_groups_from_votes, persist_groups
+)
+from flask import request, session, redirect, url_for, flash, render_template
+from app.services import get_teacher_by_id, update_teacher_profile, update_teacher_password
+
+from datetime import datetime
+
+teacher_bp = Blueprint('teacher', __name__, url_prefix='/teacher')
+
+@teacher_bp.route('/')
+def dashboard():
+    """
+    Teacher dashboard that lists all elections created by the logged-in teacher.
+    """
+    teacher_id = session.get('user_id')
+    elections = list_elections_by_teacher(teacher_id)
+    return render_template('teacher/dashboard.html', elections=elections)
+
+@teacher_bp.route('/election/new', methods=['GET', 'POST'])
+def create_new_election():
+    """
+    Create a new election. On GET, show form. On POST, save it.
+    """
+    if request.method == 'POST':
+        title = request.form['title']
+        description = request.form.get('description', '')
+        start_date = datetime.strptime(request.form['start_date'], '%Y-%m-%d')
+        end_date = datetime.strptime(request.form['end_date'], '%Y-%m-%d')
+        max_votes = int(request.form['max_votes_per_student'])
+        group_size = int(request.form['students_per_group'])
+        teacher_id = session.get('user_id')
+        selected_student_ids = request.form.getlist('student_ids')  # list of strings
+        selected_student_ids = list(map(int, selected_student_ids))
+
+        create_election(
+            title=title,
+            start_date=start_date,
+            end_date=end_date,
+            teacher_id=teacher_id,
+            max_votes_per_student=max_votes,
+            students_per_group=group_size,
+            description=description,
+            student_ids=selected_student_ids
+        )
+
+        flash('Election created successfully.', 'success')
+        return redirect(url_for('teacher.dashboard'))
+    else:
+        students = list_all_students()  # get all students for selection
+        return render_template('teacher/election_form.html', students=students)
+
+@teacher_bp.route('/complete-profile', methods=['GET', 'POST'])
+def complete_profile():
+    teacher_id = session.get('user_id')
+    teacher = get_teacher_by_id(teacher_id)
+
+    if request.method == 'POST':
+        first_name = request.form.get('first_name')
+        last_name = request.form.get('last_name')
+        department = request.form.get('department')
+        password = request.form.get('password')
+        password_confirm = request.form.get('password_confirm')
+
+        if password != password_confirm:
+            flash("Passwords do not match.", "danger")
+            return render_template('teacher/complete_profile.html', teacher=teacher)
+
+        # Update profile info and optionally password
+        update_teacher_profile(teacher_id, first_name, last_name, department)
+        if password:
+            update_teacher_password(teacher_id, password)
+
+        flash("Profile updated successfully.", "success")
+        return redirect(url_for('teacher.dashboard'))
+
+    return render_template('teacher/complete_profile.html', teacher=teacher)
+
+
+@teacher_bp.route('/election/<int:election_id>/manage')
+def manage_election(election_id):
+    """
+    View and manage a specific election (students, votes, status).
+    """
+    election = get_election_by_id(election_id)
+    return render_template('teacher/manage_election.html', election=election)
+
+@teacher_bp.route('/election/<int:election_id>/delete')
+def delete_election_route(election_id):
+    """
+    Delete an election.
+    """
+    if delete_election(election_id):
+        flash("Election deleted.", "info")
+    else:
+        flash("Failed to delete election.", "danger")
+    return redirect(url_for('teacher.dashboard'))
+
+@teacher_bp.route('/election/<int:election_id>/status/<string:status>')
+def change_election_status(election_id, status):
+    """
+    Change the status of an election (e.g., pause, finish, resume).
+    """
+    if update_election_status(election_id, status):
+        flash(f"Election status updated to '{status}'.", "success")
+    else:
+        flash("Failed to update election status.", "danger")
+    return redirect(url_for('teacher.manage_election', election_id=election_id))
+
+@teacher_bp.route('/election/<int:election_id>/generate-groups')
+def generate_groups(election_id):
+    election = get_election_by_id(election_id)
+    students = [s.id for s in election.students]  # Filter students belonging to the election
+    student_to_group, score = form_groups_from_votes(
+        election_id, students, election.students_per_group
+    )
+    persist_groups(election_id, student_to_group)
+    flash(f"Groups generated (Affinity Score: {score}).", "success")
+    return redirect(url_for('teacher.view_groups', election_id=election_id))
+
+@teacher_bp.route('/election/<int:election_id>/groups')
+def view_groups(election_id):
+    """
+    Display the generated groups for an election.
+    """
+    election = get_election_by_id(election_id)
+    return render_template('teacher/view_groups.html', election=election)
