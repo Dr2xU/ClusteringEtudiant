@@ -1,2 +1,0 @@
-class election:
-    pass
