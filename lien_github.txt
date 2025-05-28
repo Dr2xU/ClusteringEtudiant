@@ -1,0 +1,6 @@
+Projet par : 
+- Carlos Okinda
+- Wael Akil 
+- Jade Delebecque
+
+Lien GitHub : https://github.com/votrecompte/ClusteringEtudiant.git
