@@ -1,10 +1,9 @@
 import sys
 import os
+from flask import Blueprint, render_template, redirect, url_for, request, flash, session
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
-
-from flask import Blueprint, render_template, redirect, url_for, request, flash, session
 from app.services import (
     authenticate_admin,
     authenticate_teacher,

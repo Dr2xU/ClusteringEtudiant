@@ -5,9 +5,8 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '.
 
 from app.extensions import db
 from werkzeug.security import generate_password_hash, check_password_hash
-
-# Import election_students association table if needed
 from app.models.election import election_students
+
 
 class Student(db.Model):
     """

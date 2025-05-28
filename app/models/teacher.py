@@ -3,7 +3,6 @@ import os
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
-
 from app.extensions import db
 from werkzeug.security import generate_password_hash, check_password_hash
 

@@ -1,12 +1,10 @@
 import sys
 import os
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
-
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from app.services import (
-    get_all_votes_for_election,
     cast_vote,
     delete_votes_by_student,
     get_votes_by_student,

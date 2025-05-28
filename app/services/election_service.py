@@ -1,18 +1,15 @@
 import sys
 import os
+from datetime import datetime
+from typing import Optional, List
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
-from app.dao.election_dao import (
+from app.dao import (
     add_election,
-    get_election_by_id,
-    list_elections_by_teacher,
-    update_election_status,
-    delete_election
+    get_election_by_id
 )
 from app.extensions import db
-from datetime import datetime
-from typing import Optional, List
 from app.models import Election
 
 def create_election(

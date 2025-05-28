@@ -1,20 +1,21 @@
 import sys
 import os
+from datetime import datetime
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from app.services import (
     create_election, list_elections_by_teacher, get_election_by_id,
     update_election_status, delete_election,
     list_all_students,
-    create_groups_and_name# Assuming a helper for listing students
+    get_teacher_by_id, 
+    update_teacher_profile,
+    update_teacher_password, run_full_grouping
 )
-from flask import request, session, redirect, url_for, flash, render_template
-from app.services import get_teacher_by_id, update_teacher_profile, update_teacher_password, run_full_grouping
+
 from app.models import Student, StudentVote
 from app.dao import get_groups_by_election, get_members_by_group
-from datetime import datetime
 
 teacher_bp = Blueprint('teacher', __name__, url_prefix='/teacher')
 

@@ -1,11 +1,10 @@
 import sys
 import os
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
-
 import random
 import string
 from datetime import datetime, timedelta
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 from app.models import Student, Election, StudentVote
 from app.dao import add_student, add_or_update_vote, add_election

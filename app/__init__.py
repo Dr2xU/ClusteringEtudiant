@@ -6,10 +6,8 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '.
 from flask import Flask, render_template, redirect, url_for
 from app.config import Config
 from app.extensions import db
-from app.blueprints.auth.routes import auth_bp
-from app.blueprints.admin.routes import admin_bp
-from app.blueprints.teacher.routes import teacher_bp
-from app.blueprints.student.routes import student_bp
+from app.blueprints import auth_bp,admin_bp, teacher_bp, student_bp
+
 
 def create_app(config_class=Config):
     """
