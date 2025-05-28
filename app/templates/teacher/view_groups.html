@@ -11,15 +11,26 @@
   <strong>Group Size:</strong> {{ election.students_per_group }}
 </p>
 
-{% if election.groups %}
-  {% for group in election.groups %}
+{% if group_data %}
+  {% for entry in group_data %}
     <div style="margin-bottom: 30px;">
-      <h3>Group {{ loop.index }}</h3>
+      <h3 style="color: {% if entry.highlight %}green{% else %}inherit{% endif %};">
+        {{ entry.group.group_name or "Group " ~ loop.index }}
+      </h3>
       <ul>
-        {% for member in group.members %}
-          <li>
-            {{ member.student.first_name }} {{ member.student.last_name }}
-            ({{ member.student.email }})
+        {% for member in entry.members %}
+          <li style="color: {% if entry.highlight %}green{% else %}inherit{% endif %};">
+            {{ member.first_name }} {{ member.last_name }} ({{ member.email }}) - {{ member.id }}
+            <br>
+            <small>Voted for:
+              {% if votes_map.get(member.id) %}
+                {% for cid, score in votes_map[member.id].items() %}
+                  {{ cid }} ({{ score }}){% if not loop.last %}, {% endif %}
+                {% endfor %}
+              {% else %}
+                None
+              {% endif %}
+            </small>
           </li>
         {% endfor %}
       </ul>

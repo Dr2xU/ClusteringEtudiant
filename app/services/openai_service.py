@@ -52,6 +52,7 @@ class OpenAIService:
                 n=1
             )
             group_name = response.choices[0].message.content.strip()
+            print(f"Generated group name: {group_name}")  # Debug output
             return group_name if group_name else initials
         except OpenAIError as oe:
             print(f"OpenAI API error: {oe}")

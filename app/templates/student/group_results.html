@@ -8,16 +8,19 @@
 {% if group_data %}
   <p><strong>Total Groups:</strong> {{ group_data | length }}</p>
 
-  {% for group in group_data %}
-    <div style="margin-bottom: 30px;">
-      <h3>Group {{ loop.index }}</h3>
-      <ul>
-        {% for student in group %}
-          <li>{{ student.first_name }} {{ student.last_name }} ({{ student.email }})</li>
-        {% endfor %}
-      </ul>
-    </div>
-  {% endfor %}
+  {% for entry in group_data %}
+  <div style="margin-bottom: 30px;">
+    <h3>{{ entry.group.group_name or "Group " ~ loop.index }}</h3>
+    <ul>
+      {% for student in entry.members %}
+        <li style="color: {% if student.id in voted_candidates %}green{% else %}inherit{% endif %};">
+          {{ student.first_name }} {{ student.last_name }} ({{ student.email }})
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endfor %}
+
 {% else %}
   <p>No groups available. The election may not be clustered yet.</p>
 {% endif %}

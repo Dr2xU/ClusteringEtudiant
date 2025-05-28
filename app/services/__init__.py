@@ -49,8 +49,8 @@ from .vote_service import (
 )
 
 from .clustering_service import (
-    form_groups_from_votes,
-    persist_groups
+    run_full_grouping,
+    create_groups_and_name
 )
 
 from .openai_service import OpenAIService

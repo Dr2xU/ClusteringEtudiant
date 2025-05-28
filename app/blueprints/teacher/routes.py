@@ -7,12 +7,13 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from app.services import (
     create_election, list_elections_by_teacher, get_election_by_id,
     update_election_status, delete_election,
-    list_all_students,  # Assuming a helper for listing students
-    form_groups_from_votes, persist_groups
+    list_all_students,
+    create_groups_and_name# Assuming a helper for listing students
 )
 from flask import request, session, redirect, url_for, flash, render_template
-from app.services import get_teacher_by_id, update_teacher_profile, update_teacher_password
-
+from app.services import get_teacher_by_id, update_teacher_profile, update_teacher_password, run_full_grouping
+from app.models import Student, StudentVote
+from app.dao import get_groups_by_election, get_members_by_group
 from datetime import datetime
 
 teacher_bp = Blueprint('teacher', __name__, url_prefix='/teacher')
@@ -149,23 +150,52 @@ def generate_groups(election_id):
         return redirect(url_for('teacher.manage_election', election_id=election_id))
 
     try:
-        student_to_group, score = form_groups_from_votes(
+        student_to_group, score, groups_to_highlight, total_satisfaction, avg_satisfaction = run_full_grouping(
             election_id, students, group_size
         )
+        flash(f"Groups generated (Affinity Score: {score:.2f}, Satisfaction Score: {total_satisfaction:.2f}).", "success")
     except Exception as e:
         flash(f"Error during group formation: {str(e)}", "danger")
         return redirect(url_for('teacher.manage_election', election_id=election_id))
 
-    persist_groups(election_id, student_to_group)
-    flash(f"Groups generated (Affinity Score: {score:.2f}).", "success")
     return redirect(url_for('teacher.view_groups', election_id=election_id))
 
 
 @teacher_bp.route('/election/<int:election_id>/groups')
 @teacher_required
 def view_groups(election_id):
-    """
-    Display the generated groups for an election.
-    """
     election = get_election_by_id(election_id)
-    return render_template('teacher/view_groups.html', election=election)
+    groups = get_groups_by_election(election_id)
+
+    # Get all votes for this election (list of StudentVote)
+    votes = StudentVote.query.filter_by(election_id=election_id).all()
+
+    # Build a mapping: voter_id -> dict of candidate_id -> score
+    votes_map = {}
+    for vote in votes:
+        votes_map.setdefault(vote.voter_id, {})[vote.candidate_id] = vote.score
+
+    group_data = []
+    for group in groups:
+        members = get_members_by_group(group.id)
+        students = [Student.query.get(m.student_id) for m in members]
+
+        member_ids = {m.student_id for m in members}
+        highlight = False
+
+        for student in students:
+            voted_candidates = votes_map.get(student.id, {})
+            if set(voted_candidates.keys()).intersection(member_ids - {student.id}):
+                highlight = True
+                break
+
+        group_data.append({
+            'group': group,
+            'members': students,
+            'highlight': highlight
+        })
+
+    return render_template('teacher/view_groups.html',
+                           election=election,
+                           group_data=group_data,
+                           votes_map=votes_map)

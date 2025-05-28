@@ -15,7 +15,7 @@ from app.extensions import db
 def random_string(length=6):
     return ''.join(random.choices(string.ascii_lowercase, k=length))
 
-def generate_dummy_students(num_students=20):
+def generate_dummy_students(num_students=15):
     """
     Generate dummy students with random attributes and save them to the DB.
     """
@@ -49,7 +49,8 @@ def generate_dummy_election(teacher_id: int) -> Election:
     description = "This is a dummy election created for testing."
     start_date = datetime.utcnow()
     end_date = start_date + timedelta(days=7)
-    students_per_group = random.choice([3, 4, 5])
+    # students_per_group = random.choice([3, 4, 5])
+    students_per_group = 3
 
     election = Election(
         title=title,
